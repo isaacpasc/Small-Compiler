@@ -36,8 +36,7 @@ A small C++ compiler that will read an input program and represent it in a linke
 
 ### Input:
 
-'''
-
+```
 j, i, k ;
 {
 i = 4;
@@ -64,10 +63,10 @@ output j;
 
 }
 4 3 1 42
-'''
+```
 
 ### Output:
 
-'''
+```
 12 8 4 9 6 3 6 4 2 3 2 1 1 1 
-'''
+```
