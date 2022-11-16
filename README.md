@@ -31,3 +31,43 @@ A small C++ compiler that will read an input program and represent it in a linke
 - inputs → num list
 - num list → NUM
 - num list → NUM num list
+
+## Example:
+
+### Input:
+
+'''
+
+j, i, k ;
+{
+i = 4;
+j = 3;
+
+input i;
+input j;
+input k;
+
+WHILE i > 0 {
+	j = 3;
+	WHILE j > 0 { 
+		k = i*j;
+		output k;
+		j = j-1;
+	}
+	i = i-1;
+}
+
+i = i+1;
+j = j+1;
+output i;
+output j;
+
+}
+4 3 1 42
+'''
+
+### Output:
+
+'''
+12 8 4 9 6 3 6 4 2 3 2 1 1 1 
+'''
