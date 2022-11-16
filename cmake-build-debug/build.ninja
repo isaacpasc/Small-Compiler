@@ -73,6 +73,12 @@ build CMakeFiles/P3CSE340.dir/lexer.cc.o: CXX_COMPILER__P3CSE340_Debug /home/cse
   OBJECT_DIR = CMakeFiles/P3CSE340.dir
   OBJECT_FILE_DIR = CMakeFiles/P3CSE340.dir
 
+build CMakeFiles/P3CSE340.dir/parser.cpp.o: CXX_COMPILER__P3CSE340_Debug /home/cse310/CLionProjects/P3CSE340/parser.cpp || cmake_object_order_depends_target_P3CSE340
+  DEP_FILE = CMakeFiles/P3CSE340.dir/parser.cpp.o.d
+  FLAGS = -g -std=gnu++11
+  OBJECT_DIR = CMakeFiles/P3CSE340.dir
+  OBJECT_FILE_DIR = CMakeFiles/P3CSE340.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target P3CSE340
@@ -81,7 +87,7 @@ build CMakeFiles/P3CSE340.dir/lexer.cc.o: CXX_COMPILER__P3CSE340_Debug /home/cse
 #############################################
 # Link the executable P3CSE340
 
-build P3CSE340: CXX_EXECUTABLE_LINKER__P3CSE340_Debug CMakeFiles/P3CSE340.dir/demo.cc.o CMakeFiles/P3CSE340.dir/execute.cc.o CMakeFiles/P3CSE340.dir/inputbuf.cc.o CMakeFiles/P3CSE340.dir/lexer.cc.o
+build P3CSE340: CXX_EXECUTABLE_LINKER__P3CSE340_Debug CMakeFiles/P3CSE340.dir/demo.cc.o CMakeFiles/P3CSE340.dir/execute.cc.o CMakeFiles/P3CSE340.dir/inputbuf.cc.o CMakeFiles/P3CSE340.dir/lexer.cc.o CMakeFiles/P3CSE340.dir/parser.cpp.o
   FLAGS = -g
   OBJECT_DIR = CMakeFiles/P3CSE340.dir
   POST_BUILD = :
