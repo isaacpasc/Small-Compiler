@@ -7,6 +7,7 @@
 
 #include <map>
 #include <string>
+#include <tuple>
 #include "lexer.h"
 #include "execute.h"
 
@@ -24,19 +25,19 @@ private:
     void parse_program();
     void parse_var_section();
     void parse_id_list();
-    void parse_body();
-    void parse_stmt_list();
-    void parse_stmt();
+    InstructionNode* parse_body();
+    InstructionNode* parse_stmt_list();
+    InstructionNode* parse_stmt();
     InstructionNode* parse_assign_stmt();
     void parse_expr(InstructionNode*);
     int parse_primary();
     ArithmeticOperatorType parse_op();
     InstructionNode* parse_input_stmt();
-    void parse_output_stmt();
-    void parse_while_stmt();
-    void parse_if_stmt();
-    void parse_condition();
-    void parse_relop();
+    InstructionNode* parse_output_stmt();
+    InstructionNode* parse_while_stmt();
+    InstructionNode* parse_if_stmt();
+    std::tuple<int, ConditionalOperatorType, int> parse_condition();
+    ConditionalOperatorType parse_relop();
     void parse_switch_stmt();
     void parse_for_stmt();
     void parse_case_list();

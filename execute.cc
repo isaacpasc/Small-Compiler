@@ -137,8 +137,6 @@ void execute_program(struct InstructionNode * program)
 
 int main()
 {
-    parser p = *new parser;
-    p.parse_Input();
     struct InstructionNode * program;
     program = parse_generate_intermediate_representation();
     execute_program(program);
