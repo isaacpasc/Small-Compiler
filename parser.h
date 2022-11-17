@@ -5,7 +5,10 @@
 #ifndef P3CSE340_PARSER_H
 #define P3CSE340_PARSER_H
 
+#include <map>
+#include <string>
 #include "lexer.h"
+#include "execute.h"
 
 
 class parser {
@@ -13,7 +16,8 @@ public:
     void parse_Input();
 private:
     LexicalAnalyzer lexer;
-    void error(int id);
+    std::map<std::string, int> locationTable;
+    static void error(int id);
     Token expect(TokenType expected_type, int id);
     void printAllInput();
 
@@ -23,11 +27,11 @@ private:
     void parse_body();
     void parse_stmt_list();
     void parse_stmt();
-    void parse_assign_stmt();
-    void parse_expr();
-    void parse_primary();
-    void parse_op();
-    void parse_input_stmt();
+    InstructionNode* parse_assign_stmt();
+    void parse_expr(InstructionNode*);
+    int parse_primary();
+    ArithmeticOperatorType parse_op();
+    InstructionNode* parse_input_stmt();
     void parse_output_stmt();
     void parse_while_stmt();
     void parse_if_stmt();

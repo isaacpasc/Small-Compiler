@@ -14,10 +14,11 @@ void parser::error(int id) {
 
 Token parser::expect(TokenType expected_type, int id) {
     Token t = lexer.GetToken();
-    if (t.token_type != expected_type)
+    if (t.token_type != expected_type) {
         cout << "EXPECTED: " << expected_type << endl;
         cout << "GOT: " << t.token_type << endl;
         error(id);
+    }
     return t;
 }
 
@@ -47,7 +48,10 @@ void parser::parse_var_section() {
 }
 
 void parser::parse_id_list() {
-    expect(ID, 3);
+    Token variable = expect(ID, 3);
+    locationTable[variable.lexeme] = next_available;
+    mem[next_available] = 0;
+    next_available++;
     Token t = lexer.peek(1);
     if (t.token_type == COMMA) {
         expect(COMMA, 4);
@@ -88,55 +92,81 @@ void parser::parse_stmt() {
     }
 }
 
-void parser::parse_assign_stmt() {
-    expect(ID, 7);
+InstructionNode* parser::parse_assign_stmt() {
+    Token leftSide = expect(ID, 7);
     expect(EQUAL, 8);
     Token t = lexer.peek(2);
+    auto* node = new InstructionNode;
+    node->type = ASSIGN;
+    node->assign_inst.left_hand_side_index = locationTable[leftSide.lexeme];
     if (t.token_type == PLUS || t.token_type == MINUS || t.token_type == DIV || t.token_type == MULT) {
-        parse_expr();
+        parse_expr(node);
+        expect(SEMICOLON, 9);
     } else {
-        parse_primary();
+        int number = parse_primary();
+        expect(SEMICOLON, 9);
+        node->assign_inst.op = OPERATOR_NONE;
+        node->assign_inst.opernd1_index = number;
     }
-    expect(SEMICOLON, 9);
+    return node;
 }
 
-void parser::parse_expr() {
-    parse_primary();
-    parse_op();
-    parse_primary();
+void parser::parse_expr(InstructionNode* node) {
+    int first = parse_primary();
+    ArithmeticOperatorType op = parse_op();
+    int second = parse_primary();
+    node->assign_inst.op = op;
+    node->assign_inst.opernd1_index = first;
+    node->assign_inst.opernd2_index = second;
 }
 
-void parser::parse_primary() {
+int parser::parse_primary() {
     Token t = lexer.peek(1);
     if (t.token_type == ID) {
-        expect(ID, 10);
+        Token variable = expect(ID, 10);
+        return locationTable[variable.lexeme];
     } else {
-        expect(NUM, 11);
+        Token number = expect(NUM, 11);
+        if (locationTable.count(number.lexeme) == 0) {
+            locationTable[number.lexeme] = next_available;
+            mem[next_available] = stoi(number.lexeme);
+            next_available++;
+        }
+        return locationTable[number.lexeme];
     }
 }
 
-void parser::parse_op() {
+ArithmeticOperatorType parser::parse_op() {
     Token t = lexer.peek(1);
     if (t.token_type == MINUS) {
         expect(MINUS, 12);
+        return OPERATOR_MINUS;
     } else if (t.token_type == PLUS) {
         expect(PLUS, 13);
+        return OPERATOR_PLUS;
     } else if (t.token_type == DIV) {
         expect(DIV, 14);
+        return OPERATOR_DIV;
     } else if (t.token_type == MULT) {
         expect(MULT, 15);
+        return OPERATOR_MULT;
     }
 }
 
-void parser::parse_input_stmt() {
+InstructionNode* parser::parse_input_stmt() {
     expect(INPUT, 16);
-    expect(ID, 17);
+    Token t = expect(ID, 17);
+    auto* node = new InstructionNode;
+    node->type = IN;
+    node->input_inst.var_index = mem[locationTable[t.lexeme]];
     expect(SEMICOLON, 18);
+    return node;
 }
 
 void parser::parse_output_stmt() {
     expect(OUTPUT, 19);
-    expect(ID, 20);
+    Token variable = expect(ID, 20);
+    cout << " " << mem[locationTable[variable.lexeme]] << " ";
     expect(SEMICOLON, 21);
 }
 
@@ -218,7 +248,8 @@ void parser::parse_inputs() {
 }
 
 void parser::parse_num_list() {
-    expect(NUM, 40);
+    Token number = expect(NUM, 40);
+    inputs.push_back(stoi(number.lexeme));
     Token t = lexer.peek(1);
     if (t.token_type == NUM) {
         parse_num_list();
