@@ -27,15 +27,6 @@ Token parser::expect(TokenType expected_type, int id) {
     return t;
 }
 
-void parser::printAllInput() {
-    Token t;
-    t = lexer.GetToken();
-    while (t.token_type != END_OF_FILE) {
-        t.Print();
-        t = lexer.GetToken();
-    }
-}
-
 InstructionNode* parser::parse_Input() {
     InstructionNode* node = parse_program();
     expect(END_OF_FILE, 1);
@@ -262,15 +253,47 @@ ConditionalOperatorType parser::parse_relop() {
 }
 
 InstructionNode* parser::parse_switch_stmt() {
+    auto* noop = new InstructionNode;
+    noop->type = NOOP;
+    noop->next = nullptr;
     expect(SWITCH, 27);
-    expect(ID, 28);
+    Token switchVariable = expect(ID, 28);
     expect(LBRACE, 29);
-    parse_case_list();
+    auto* allCases = parse_case_list(noop, locationTable[switchVariable.lexeme]);
     Token t = lexer.peek(1);
-    if (t.token_type != RBRACE) {
-        parse_default_case();
+    if (t.token_type == DEFAULT) {
+        auto* defaultBody = parse_default_case();
+        InstructionNode* final = allCases;
+        if (final->type == CJMP && final->cjmp_inst.target == nullptr) {
+            final->cjmp_inst.target = defaultBody;
+            final->next->cjmp_inst.target = defaultBody;
+        }
+        while (final->next) {
+            if (final->type == CJMP && final->cjmp_inst.target == nullptr) {
+                final->cjmp_inst.target = defaultBody;
+                final->next->cjmp_inst.target = defaultBody;
+            }
+            final = final->next;
+        }
+        final->next = defaultBody;
+        defaultBody->next = noop;
+    } else {
+        InstructionNode* final = allCases;
+        if (final->type == CJMP && final->cjmp_inst.target == nullptr) {
+            final->cjmp_inst.target = noop;
+            final->next->cjmp_inst.target = noop;
+        }
+        while (final->next) {
+            if (final->type == CJMP && final->cjmp_inst.target == nullptr) {
+                final->cjmp_inst.target = noop;
+                final->next->cjmp_inst.target = noop;
+            }
+            final = final->next;
+        }
+        final->next = noop;
     }
     expect(RBRACE, 30);
+    return allCases;
 }
 
 InstructionNode* parser::parse_for_stmt() {
@@ -306,25 +329,79 @@ InstructionNode* parser::parse_for_stmt() {
     return assn1;
 }
 
-void parser::parse_case_list() {
-    parse_case();
+InstructionNode* parser::parse_case_list(InstructionNode* noop, int switchLocation) {
+    auto* caseNode1 = parse_case(noop, switchLocation);
     Token t = lexer.peek(1);
-    if (t.token_type == RBRACE || t.token_type == DEFAULT) {
-        parse_case_list();
+    if (t.token_type != RBRACE && t.token_type != DEFAULT) {
+        auto* caseNode2 = parse_case_list(noop, switchLocation);
+        InstructionNode* final = caseNode1;
+        while (final->next) {
+            final = final->next;
+        }
+        caseNode1->cjmp_inst.target = caseNode2;
+        caseNode1->next->cjmp_inst.target = caseNode2;
+        final->next = caseNode2;
     }
+    return caseNode1;
 }
 
-void parser::parse_case() {
+InstructionNode* parser::parse_case(InstructionNode* noop, int switchLocation) {
     expect(CASE, 35);
-    expect(NUM, 36);
+    Token number = expect(NUM, 36);
     expect(COLON, 37);
-    parse_body();
+
+    // get greater and smaller constant to compare in cjmp
+    int theSmallerNumber = stoi(number.lexeme) - 1;
+    int theBiggerNumber = stoi(number.lexeme) + 1;
+    if (locationTable.count(to_string(theSmallerNumber)) == 0) {
+        locationTable[to_string(theSmallerNumber)] = next_available;
+        mem[next_available] = theSmallerNumber;
+        next_available++;
+    }
+    if (locationTable.count(to_string(theBiggerNumber)) == 0) {
+        locationTable[to_string(theBiggerNumber)] = next_available;
+        mem[next_available] = theBiggerNumber;
+        next_available++;
+    }
+
+    // create jmp to send to label after success match
+    auto* jmp = new InstructionNode;
+    jmp->type = JMP;
+    jmp->jmp_inst.target = noop;
+    jmp->next = nullptr;
+
+    // create outer if cjmp based on greater value
+    auto* greaterCJmp = new InstructionNode;
+    greaterCJmp->type = CJMP;
+    greaterCJmp->cjmp_inst.condition_op = CONDITION_GREATER;
+    greaterCJmp->cjmp_inst.opernd1_index = switchLocation;
+    greaterCJmp->cjmp_inst.opernd2_index = locationTable[to_string(theBiggerNumber)];
+    greaterCJmp->cjmp_inst.target = nullptr;
+
+    // create inner if cjmp based on lesser value
+    auto* lesserCJmp = new InstructionNode;
+    greaterCJmp->next = lesserCJmp;
+    lesserCJmp->type = CJMP;
+    lesserCJmp->cjmp_inst.condition_op = CONDITION_LESS;
+    lesserCJmp->cjmp_inst.opernd1_index = switchLocation;
+    lesserCJmp->cjmp_inst.opernd2_index = locationTable[to_string(theSmallerNumber)];
+    lesserCJmp->cjmp_inst.target = nullptr;
+
+    // set up body of case
+    auto* body = parse_body();
+    lesserCJmp->next = body;
+    InstructionNode* final = body;
+    while (final->next) {
+        final = final->next;
+    }
+    final->next = jmp;
+    return greaterCJmp;
 }
 
-void parser::parse_default_case() {
+InstructionNode* parser::parse_default_case() {
     expect(DEFAULT, 38);
     expect(COLON, 39);
-    parse_body();
+    return parse_body();
 }
 
 void parser::parse_inputs() {

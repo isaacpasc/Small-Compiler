@@ -20,7 +20,6 @@ private:
     std::map<std::string, int> locationTable;
     static void error(int id);
     Token expect(TokenType expected_type, int id);
-    void printAllInput();
 
     InstructionNode* parse_program();
     void parse_var_section();
@@ -40,9 +39,9 @@ private:
     ConditionalOperatorType parse_relop();
     InstructionNode* parse_switch_stmt();
     InstructionNode* parse_for_stmt();
-    void parse_case_list();
-    void parse_case();
-    void parse_default_case();
+    InstructionNode* parse_case_list(InstructionNode*, int);
+    InstructionNode* parse_case(InstructionNode*, int);
+    InstructionNode* parse_default_case();
     void parse_inputs();
     void parse_num_list();
 };
