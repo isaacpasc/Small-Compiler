@@ -373,7 +373,7 @@ InstructionNode* parser::parse_case(InstructionNode* noop, int switchLocation) {
     // create outer if cjmp based on greater value
     auto* greaterCJmp = new InstructionNode;
     greaterCJmp->type = CJMP;
-    greaterCJmp->cjmp_inst.condition_op = CONDITION_GREATER;
+    greaterCJmp->cjmp_inst.condition_op = CONDITION_LESS;
     greaterCJmp->cjmp_inst.opernd1_index = switchLocation;
     greaterCJmp->cjmp_inst.opernd2_index = locationTable[to_string(theBiggerNumber)];
     greaterCJmp->cjmp_inst.target = nullptr;
@@ -382,7 +382,7 @@ InstructionNode* parser::parse_case(InstructionNode* noop, int switchLocation) {
     auto* lesserCJmp = new InstructionNode;
     greaterCJmp->next = lesserCJmp;
     lesserCJmp->type = CJMP;
-    lesserCJmp->cjmp_inst.condition_op = CONDITION_LESS;
+    lesserCJmp->cjmp_inst.condition_op = CONDITION_GREATER;
     lesserCJmp->cjmp_inst.opernd1_index = switchLocation;
     lesserCJmp->cjmp_inst.opernd2_index = locationTable[to_string(theSmallerNumber)];
     lesserCJmp->cjmp_inst.target = nullptr;

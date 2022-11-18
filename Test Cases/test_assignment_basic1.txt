@@ -3,6 +3,17 @@ i, j;
 	input i;
   	i = 42 ;
   	j = i + 1; 
+	SWITCH j {
+		CASE 42: {
+			i = i + 1;
+		}
+		CASE 43: {
+			i = i + 2;
+		}
+		DEFAULT: {
+			i = i + 3;
+		}
+	}
 	output i;
 	output j;
 }
