@@ -7,6 +7,11 @@
 
 using namespace std;
 
+struct InstructionNode * parse_generate_intermediate_representation() {
+    parser p;
+    return p.parse_Input();
+}
+
 void parser::error(int id) {
     cout << "ERROR AT " << id << endl;
     exit(1);
@@ -171,7 +176,7 @@ InstructionNode* parser::parse_input_stmt() {
     auto* node = new InstructionNode;
     node->next = nullptr;
     node->type = IN;
-    node->input_inst.var_index = mem[locationTable[t.lexeme]];
+    node->input_inst.var_index = locationTable[t.lexeme];
     expect(SEMICOLON, 18);
     return node;
 }
@@ -182,7 +187,7 @@ InstructionNode* parser::parse_output_stmt() {
     auto* node = new InstructionNode;
     node->next = nullptr;
     node->type = OUT;
-    node->output_inst.var_index = mem[locationTable[variable.lexeme]];
+    node->output_inst.var_index = locationTable[variable.lexeme];
     expect(SEMICOLON, 21);
     return node;
 }
@@ -214,9 +219,9 @@ InstructionNode* parser::parse_while_stmt() {
 }
 
 InstructionNode* parser::parse_if_stmt() {
+    expect(IF, 23);
     auto* node = new InstructionNode;
     node->type = CJMP;
-    expect(IF, 23);
     auto conditional = parse_condition();
     node->cjmp_inst.condition_op = get<1>(conditional);
     node->cjmp_inst.opernd1_index = get<0>(conditional);

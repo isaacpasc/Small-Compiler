@@ -8,6 +8,7 @@
 #include <cstdarg>
 #include <cctype>
 #include <cstring>
+#include <iostream>
 #include <string>
 #include "execute.h"
 #include "parser.h"
