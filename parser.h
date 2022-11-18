@@ -14,7 +14,7 @@
 
 class parser {
 public:
-    void parse_Input();
+    InstructionNode* parse_Input();
 private:
     LexicalAnalyzer lexer;
     std::map<std::string, int> locationTable;
@@ -22,7 +22,7 @@ private:
     Token expect(TokenType expected_type, int id);
     void printAllInput();
 
-    void parse_program();
+    InstructionNode* parse_program();
     void parse_var_section();
     void parse_id_list();
     InstructionNode* parse_body();
@@ -38,8 +38,8 @@ private:
     InstructionNode* parse_if_stmt();
     std::tuple<int, ConditionalOperatorType, int> parse_condition();
     ConditionalOperatorType parse_relop();
-    void parse_switch_stmt();
-    void parse_for_stmt();
+    InstructionNode* parse_switch_stmt();
+    InstructionNode* parse_for_stmt();
     void parse_case_list();
     void parse_case();
     void parse_default_case();

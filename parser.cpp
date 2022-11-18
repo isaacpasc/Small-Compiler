@@ -31,15 +31,17 @@ void parser::printAllInput() {
     }
 }
 
-void parser::parse_Input() {
-    parse_program();
+InstructionNode* parser::parse_Input() {
+    InstructionNode* node = parse_program();
     expect(END_OF_FILE, 1);
+    return node;
 }
 
-void parser::parse_program() {
+InstructionNode* parser::parse_program() {
     parse_var_section();
-    parse_body();
+    InstructionNode* node = parse_body();
     parse_inputs();
+    return node;
 }
 
 void parser::parse_var_section() {
@@ -91,9 +93,9 @@ InstructionNode* parser::parse_stmt() {
     } else if (t.token_type == IF) {
         return parse_if_stmt();
     } else if (t.token_type == SWITCH) {
-        parse_switch_stmt();
+        return parse_switch_stmt();
     } else if (t.token_type == FOR) {
-        parse_for_stmt();
+        return parse_for_stmt();
     } else if (t.token_type == OUTPUT) {
         return parse_output_stmt();
     } else if (t.token_type == INPUT) {
@@ -187,7 +189,6 @@ InstructionNode* parser::parse_output_stmt() {
 
 InstructionNode* parser::parse_while_stmt() {
     auto* node = new InstructionNode;
-    node->next = nullptr;
     node->type = CJMP;
     expect(WHILE, 22);
     auto conditional = parse_condition();
@@ -255,7 +256,7 @@ ConditionalOperatorType parser::parse_relop() {
     }
 }
 
-void parser::parse_switch_stmt() {
+InstructionNode* parser::parse_switch_stmt() {
     expect(SWITCH, 27);
     expect(ID, 28);
     expect(LBRACE, 29);
@@ -267,15 +268,37 @@ void parser::parse_switch_stmt() {
     expect(RBRACE, 30);
 }
 
-void parser::parse_for_stmt() {
+InstructionNode* parser::parse_for_stmt() {
+    auto* node = new InstructionNode;
+    node->type = CJMP;
     expect(FOR, 31);
     expect(LPAREN, 32);
-    parse_assign_stmt();
-    parse_condition();
+    InstructionNode* assn1 = parse_assign_stmt();
+    assn1->next = node;
+    auto conditional = parse_condition();
+    node->cjmp_inst.condition_op = get<1>(conditional);
+    node->cjmp_inst.opernd1_index = get<0>(conditional);
+    node->cjmp_inst.opernd2_index = get<2>(conditional);
     expect(SEMICOLON, 33);
-    parse_assign_stmt();
+    InstructionNode* assn2 = parse_assign_stmt();
     expect(RPAREN, 34);
-    parse_body();
+    InstructionNode* next = parse_body();
+    node->next = next;
+    auto* jump = new InstructionNode;
+    jump->type = JMP;
+    jump->jmp_inst.target = node;
+    auto* noop = new InstructionNode;
+    noop->type = NOOP;
+    noop->next = nullptr;
+    node->cjmp_inst.target = noop;
+    jump->next = noop;
+    InstructionNode* final = next;
+    while (final->next) {
+        final = final->next;
+    }
+    final->next = assn2;
+    assn2->next = jump;
+    return assn1;
 }
 
 void parser::parse_case_list() {
