@@ -1,16 +1,9 @@
-/*
- * Copyright (C) Rida Bazzi, 2017
- *
- * Do not share this file with anyone
- */
 #include <iostream>
 #include <istream>
-#include <vector>
 #include <string>
 #include <cctype>
 
 #include "lexer.h"
-#include "inputbuf.h"
 
 using namespace std;
 
@@ -25,13 +18,6 @@ string reserved[] = { "END_OF_FILE",
 
 #define KEYWORDS_COUNT 9
 
-void Token::Print()
-{
-    cout << "{" << this->lexeme << " , "
-         << reserved[(int) this->token_type] << " , "
-         << this->line_no << "}\n";
-}
-
 LexicalAnalyzer::LexicalAnalyzer()
 {
     this->line_no = 1;
@@ -45,7 +31,7 @@ LexicalAnalyzer::LexicalAnalyzer()
     while (token.token_type != END_OF_FILE)
     {
         tokenList.push_back(token);     // push token into internal list
-        token = GetTokenMain();        // and get next token from standatd input
+        token = GetTokenMain();        // and get next token from standard input
     }
     // pushes END_OF_FILE is not pushed on the token list
 }

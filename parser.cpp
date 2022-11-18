@@ -1,7 +1,3 @@
-//
-// Created by cse310 on 11/15/22.
-//
-
 #include <iostream>
 #include "parser.h"
 

@@ -7,7 +7,7 @@ i, j;
 		CASE 42: {
 			i = i + 1;
 		}
-		CASE 43: {
+		CASE 45: {
 			i = i + 2;
 		}
 		DEFAULT: {

@@ -1,11 +1,4 @@
-/*
- * Copyright (C) Rida Bazzi, 2017
- *
- * Do not share this file with anyone
- */
 #include <iostream>
-#include <istream>
-#include <vector>
 #include <string>
 #include <cstdio>
 
@@ -36,11 +29,4 @@ void InputBuffer::GetChar(char& c)
     } else {
         cin.get(c);
     }
-}
-
-string InputBuffer::UngetString(string s)
-{
-    for (int i = 0; i < s.size(); i++)
-        input_buffer.push_back(s[s.size()-i-1]);
-    return s;
 }

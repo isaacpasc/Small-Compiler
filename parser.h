@@ -1,7 +1,3 @@
-//
-// Created by cse310 on 11/15/22.
-//
-
 #ifndef P3CSE340_PARSER_H
 #define P3CSE340_PARSER_H
 
@@ -47,4 +43,4 @@ private:
 };
 
 
-#endif //P3CSE340_PARSER_H
+#endif
